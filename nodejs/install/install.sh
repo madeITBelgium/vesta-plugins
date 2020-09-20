@@ -27,7 +27,7 @@ check_args '0' "$#" '[RESTART]'
 #                       Action                             #
 #----------------------------------------------------------#
 
-curl --silent --location https://rpm.nodesource.com/setup_10.x | sudo bash -
+curl --silent --location https://rpm.nodesource.com/setup_current.x | sudo bash -
 sudo yum -y install nodejs
 
 #----------------------------------------------------------#
