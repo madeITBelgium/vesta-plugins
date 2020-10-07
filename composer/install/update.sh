@@ -31,7 +31,7 @@ check_args '0' "$#" '[RESTART]'
 #----------------------------------------------------------#
 
 
-if [ "$STARTVERSION" = "0.0.0" && "$ENDVERSION" = "1.0.1" ];
+if [ "$STARTVERSION" = "0.0.0" ] && [ "$ENDVERSION" = "1.0.1" ];
 then
     echo "Update from $STARTVERSION to $ENDVERSION"
 fi
