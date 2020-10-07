@@ -34,7 +34,7 @@ mv composer.phar /usr/bin/composer
 RESULT=$?
 php -r "unlink('composer-setup.php');"
 
-$BIN/v-add-cron-job admin '27' '2' '1' '*' '*' "$VESTA/plugin/composer/bin/v-update-composer"
+$BIN/v-add-cron-job admin '27' '2' '1' '*' '*' "$VESTA/bin/v-exec-plugin composer v-update-composer"
 
 #----------------------------------------------------------#
 #                       Vesta                              #
