@@ -1,5 +1,5 @@
 #!/bin/bash
-# info: update composer plugin
+# info: update nodejs plugin
 # options: $STARTVERSION $ENDVERSION [RESTART]
 #
 # Update composer plugin
@@ -10,7 +10,9 @@
 #----------------------------------------------------------#
 
 # Argument definition
-restart="${1-yes}"
+STARTVERSION=$1
+ENDVERSION=$2
+restart="${3-yes}"
 
 # Includes
 source $VESTA/func/main.sh
@@ -29,7 +31,8 @@ check_args '0' "$#" '[RESTART]'
 #----------------------------------------------------------#
 
 
-if [ "$STARTVERSION" = "0.0.0" && "$ENDVERSION" = "1.0.1" ];
+if [ "$STARTVERSION" = "0.0.0" ] && [ "$ENDVERSION" = "1.0.1" ];
+then
     echo "Update from $STARTVERSION to $ENDVERSION"
 fi
 
@@ -37,8 +40,8 @@ fi
 #                       Vesta                              #
 #----------------------------------------------------------#
 
-if [ "$restart" = "yes" ];
-    echo "Restarting services";
+if [ "$restart" = "yes" ] then;
+    #echo "Restarting services";
 fi
 
 exit
