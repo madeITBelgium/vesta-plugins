@@ -31,6 +31,7 @@ curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.pha
 chmod +x wp-cli.phar
 sudo mv wp-cli.phar /usr/local/bin/wp
 
+$BIN/v-delete-cron-by-name admin v-update-wpcli
 $BIN/v-add-cron-job admin '27' '2' '1' '*' '*' "$VESTA/bin/v-exec-plugin wpcli v-update-wpcli"
 
 #----------------------------------------------------------#
