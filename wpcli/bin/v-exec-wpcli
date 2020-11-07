@@ -1,6 +1,6 @@
 #!/bin/bash
 # info: Execute wpcli command
-# Example: v-exec-plugin wpcli v-exec-wpcli example.com cli info
+#
 
 #----------------------------------------------------------#
 #                       Action                             #
@@ -22,7 +22,7 @@ format_domain_idn
 #----------------------------------------------------------#
 #                    Verifications                         #
 #----------------------------------------------------------#
-check_args '2' "$#" 'DOMAIN PARAMETER1 [PARAMETER2] ...'
+check_args '1' "$#" 'DOMAIN PARAMETER1 [PARAMETER2] ...'
 
 
 #----------------------------------------------------------#
@@ -34,7 +34,7 @@ user=$($VESTA/bin/v-search-domain-owner $domain)
 eval $(grep "DOMAIN='$domain_idn'" $VESTA/data/users/$user/web.conf)
 
 cd /home/$user/web/$domain_idn/$DOCROOT
-sudo -u $user -i -- /usr/local/bin/wp $parmaters
+sudo -u madeit -i /usr/local/bin/wp --path="/home/$user/web/$domain_idn/$DOCROOT" $parmaters
 
 #----------------------------------------------------------#
 #                       Vesta                              #
