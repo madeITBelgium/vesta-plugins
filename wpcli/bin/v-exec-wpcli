@@ -1,0 +1,47 @@
+#!/bin/bash
+# info: Execute wpcli command
+# Example: v-exec-plugin wpcli v-exec-wpcli example.com cli info
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+
+# Argument definition
+domain=$1
+parmaters=${@:2}
+
+# Includes
+source $VESTA/func/main.sh
+source $VESTA/conf/vesta.conf
+
+# Additional argument formatting
+format_domain
+format_domain_idn
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+check_args '2' "$#" 'DOMAIN PARAMETER1 [PARAMETER2] ...'
+
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Get plugin DATA from web
+user=$($VESTA/bin/v-search-domain-owner $domain)
+eval $(grep "DOMAIN='$domain_idn'" $VESTA/data/users/$user/web.conf)
+
+cd /home/$user/web/$domain_idn/$DOCROOT
+sudo -u $user -i -- /usr/local/bin/wp $parmaters
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+# Logging
+log_history "Execute plugin command $PLUGIN -> $command"
+log_event "$OK" "$ARGUMENTS"
+
+exit
