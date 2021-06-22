@@ -1,0 +1,32 @@
+#!/bin/bash
+# info: stop redis server
+#
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Includes
+source $VESTA/func/main.sh
+source $VESTA/conf/vesta.conf
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+IFS=$'\n'
+while read str; do
+    eval $str
+    docker run --restart=always --name redis_$DOMAIN -d -e REDIS_PASSWORD=$PASSWORD -p $PORT:6379 bitnami/redis:latest
+done < <(cat $VESTA/plugin/redis/conf/clients.conf)
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+# Logging
+log_history "Stop all redis servers"
+log_event "$OK" "$ARGUMENTS"
+
+exit
+

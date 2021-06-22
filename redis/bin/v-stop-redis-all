@@ -1,0 +1,33 @@
+#!/bin/bash
+# info: stop redis server
+#
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Includes
+source $VESTA/func/main.sh
+source $VESTA/conf/vesta.conf
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+IFS=$'\n'
+while read str; do
+    eval $str
+    docker stop redis_$DOMAIN
+    docker rm redis_$DOMAIN
+done < <(cat $VESTA/plugin/redis/conf/clients.conf)
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+# Logging
+log_history "Stop all redis servers"
+log_event "$OK" "$ARGUMENTS"
+
+exit
+

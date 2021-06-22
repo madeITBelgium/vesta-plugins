@@ -1,0 +1,89 @@
+#!/bin/bash
+# info: Create redis server
+#
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+
+# Argument definition
+domain=$1
+password=$2
+port=$3
+
+# Includes
+source $VESTA/func/main.sh
+source $VESTA/conf/vesta.conf
+
+# Additional argument formatting
+format_domain
+format_domain_idn
+
+gen_pass() {
+    matrix=$1
+    lenght=$2
+    if [ -z "$matrix" ]; then
+        matrix=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+    fi
+    if [ -z "$lenght" ]; then
+        lenght=10
+    fi
+    i=1
+    while [ $i -le $lenght ]; do
+        pass="$pass${matrix:$(($RANDOM%${#matrix})):1}"
+       ((i++))
+    done
+    echo "$pass"
+}
+
+get_next_port() {
+    if [ -z "$port" ]; then
+        curr_str=$(grep "PORT=" $VESTA/plugin/redis/conf/clients.conf | cut -f 2 -d \'| sort -n | tail -n1)
+        port="$((curr_str +1))"
+    fi
+    
+    if [ "$port" = "1" ]; then
+        port=6379
+    fi
+}
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+check_args '1' "$#" 'DOMAIN [PASSWORD] [PORT]'
+
+if [ -z "$password" ]; then
+    password=$(gen_pass)
+fi
+
+if [ -z "$port" ]; then
+    get_next_port
+fi
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Generating timestamp
+time_n_date=$(date +'%T %F')
+time=$(echo "$time_n_date" |cut -f 1 -d \ )
+date=$(echo "$time_n_date" |cut -f 2 -d \ )
+
+# Concatenating redis string
+str="PORT='$port' DOMAIN='$domain' PASSWORD='$password' TIME='$time' DATE='$date'"
+
+# Adding to redis config
+echo "$str" >> $VESTA/plugin/redis/conf/clients.conf
+
+docker run --restart=always --name redis_$domain -d -e REDIS_PASSWORD=$password -p $port:6379 bitnami/redis:latest
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+# Logging
+log_history "Create redis server"
+log_event "$OK" "$ARGUMENTS"
+
+exit

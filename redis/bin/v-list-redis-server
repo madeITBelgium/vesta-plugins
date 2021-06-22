@@ -1,0 +1,81 @@
+#!/bin/bash
+# info: list redis parameters
+# options: DOMAIN [FORMAT]
+#
+# The function to obtain plugin parameters.
+
+
+#----------------------------------------------------------#
+#                    Variable&Function                     #
+#----------------------------------------------------------#
+
+# Argument definition
+domain=$1
+format=${2-shell}
+
+# Includes
+source $VESTA/func/main.sh
+
+# JSON list function
+json_list() {
+    echo '{'
+    echo '    "'$DOMAIN'": {
+        "DOMAIN": "'$DOMAIN'",
+        "PORT": "'$PORT'",
+        "PASSWORD": "'$PASSWORD'",
+        "TIME": "'$TIME'",
+        "DATE": "'$DATE'"
+    }'
+    echo '}'
+}
+
+# SHELL list function
+shell_list() {
+    echo "DOMAIN:                $DOMAIN"
+    echo "PORT:                  $PORT"
+    echo "PASSWORD:              $PASSWORD"
+    echo "TIME:                  $TIME"
+    echo "DATE:                  $DATE"
+}
+
+# PLAIN list function
+plain_list() {
+    echo -e "$DOMAIN\t$PORT\t$PASSWORD\t$TIME\t$DATE"
+}
+
+# CSV list function
+csv_list() {
+    echo "DOMAIN,PORT,PASSWORD,TIME,DATE"
+    echo "$DOMAIN,$PORT,$PASSWORD,$TIME,$DATE"
+}
+
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_args '1' "$#" 'DOMAIN [FORMAT]'
+
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Parsing plugin
+eval $(grep "DOMAIN='$domain'" $VESTA/plugin/redis/conf/clients.conf)
+
+# Listing data
+case $format in
+    json)   json_list ;;
+    plain)  plain_list ;;
+    csv)    csv_list ;;
+    shell)  shell_list ;;
+esac
+
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+exit
+

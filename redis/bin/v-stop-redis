@@ -1,0 +1,44 @@
+#!/bin/bash
+# info: stop redis server
+#
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+
+# Argument definition
+domain=$1
+
+# Includes
+source $VESTA/func/main.sh
+source $VESTA/conf/vesta.conf
+
+# Additional argument formatting
+format_domain
+format_domain_idn
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+check_args '1' "$#" 'DOMAIN'
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+sed -i "/DOMAIN='$domain' /d" $VESTA/plugin/redis/conf/clients.conf
+
+docker stop redis_$domain
+docker rm redis_$domain
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+# Logging
+log_history "Stop redis server"
+log_event "$OK" "$ARGUMENTS"
+
+exit
+
