@@ -34,7 +34,7 @@ user=$($VESTA/bin/v-search-domain-owner $domain)
 eval $(grep "DOMAIN='$domain_idn'" $VESTA/data/users/$user/web.conf)
 
 cd /home/$user/web/$domain_idn/$DOCROOT
-sudo -u madeit -i /usr/local/bin/wp --path="/home/$user/web/$domain_idn/$DOCROOT" $parmaters
+sudo -u $user -i /usr/local/bin/wp --path="/home/$user/web/$domain_idn/$DOCROOT" $parmaters
 
 #----------------------------------------------------------#
 #                       Vesta                              #
