@@ -1,0 +1,69 @@
+#!/bin/bash
+# info: generate webp images
+# options: [FORMAT]
+#
+# The function to generate all webp images.
+
+
+#----------------------------------------------------------#
+#                    Variable&Function                     #
+#----------------------------------------------------------#
+
+# Argument definition
+format=${1-shell}
+
+# Includes
+source $VESTA/func/main.sh
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_args '0' "$#" '[FORMAT]'
+
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+IFS=$'\n'
+    
+while read str; do
+    eval $str
+    
+    user=$($BIN/v-search-domain-owner $DOMAIN)
+    if [ -z "$user" ]; then
+        break
+    fi
+    
+    find $INPUT -type f -and \( -iname "*.jpg" -o -iname "*.jpeg" \) -print0 | while read -d $'\0' file
+    do
+        webp_path="$(sed -e "s|$INPUT|$OUTPUT|" <<< "$file").webp";
+        dir=$(dirname "$webp_path")
+        sudo -u $user mkdir -p $dir
+        if [ ! -f "$webp_path" ]; then
+            echo $webp_path
+            /usr/local/vesta/plugin/webp/install/libwebp-1.2.1-linux-x86-64/bin/cwebp -quiet -q 90 "$file" -o "$webp_path"
+            chown $user:$user $webp_path
+        fi
+    done
+    
+    find $INPUT -type f -and -iname "*.png" -print0 | while read -d $'\0' file
+    do
+        webp_path="$(sed -e "s|$INPUT|$OUTPUT|" <<< "$file").webp";
+        dir=$(dirname "$webp_path")
+        sudo -u $user mkdir -p $dir
+        if [ ! -f "$webp_path" ]; then
+            echo $webp_path
+            /usr/local/vesta/plugin/webp/install/libwebp-1.2.1-linux-x86-64/bin/cwebp -quiet -lossless "$file" -o "$webp_path"
+            chown $user:$user $webp_path
+        fi
+    done
+    
+done < <(cat $VESTA/plugin/webp/conf/clients.conf)
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+exit

@@ -1,0 +1,97 @@
+#!/bin/bash
+# info: list aws ses servers
+# options: [FORMAT]
+#
+# The function to obtain the list of all aws ses domainnames installed.
+
+
+#----------------------------------------------------------#
+#                    Variable&Function                     #
+#----------------------------------------------------------#
+
+# Argument definition
+format=${1-shell}
+
+# Includes
+source $VESTA/func/main.sh
+
+# JSON list function
+json_list() {
+    IFS=$'\n'
+    i=1
+    objects=$(grep DOMAIN $VESTA/plugin/awsses/conf/clients.conf |wc -l)
+    echo "{"
+    while read str; do
+        eval $str
+        echo -n '    "'$DOMAIN'": {
+        "DOMAIN": "'$DOMAIN'",
+        "TIME": "'$TIME'",
+        "DATE": "'$DATE'"
+    }'
+        if [ "$i" -lt "$objects" ]; then
+            echo ','
+        else
+            echo
+        fi
+        ((i++))
+    done < <(cat $VESTA/plugin/awsses/conf/clients.conf)
+    echo '}'
+}
+
+# SHELL list function
+shell_list() {
+    IFS=$'\n'
+    echo "DOMAIN   DATE"
+    echo "------   ----"
+    while read str; do
+        eval $str
+        echo "$DOMAIN $DATE"
+    done < <(cat $VESTA/plugin/awsses/conf/clients.conf)
+}
+
+# PLAIN list function
+plain_list() {
+    IFS=$'\n'
+    while read str; do
+        eval $str
+        echo -ne "DOMAIN\t$TIME\t$DATE"
+    done < <(cat $VESTA/plugin/awsses/conf/clients.conf)
+}
+
+# CSV list function
+csv_list() {
+    IFS=$'\n'
+    echo "DOMAIN,TIME,DATE"
+    while read str; do
+        eval $str
+        echo "$DOMAIN,$TIME,$DATE"
+    done < <(cat $VESTA/plugin/awsses/conf/clients.conf)
+}
+
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_args '0' "$#" '[FORMAT]'
+
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Listing data
+case $format in
+    json)   json_list ;;
+    plain)  plain_list ;;
+    csv)    csv_list ;;
+    shell)  shell_list |column -t ;;
+esac
+
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+exit
+

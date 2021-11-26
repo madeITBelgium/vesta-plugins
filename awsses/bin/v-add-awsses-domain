@@ -1,0 +1,70 @@
+#!/bin/bash
+# info: Add AWS SES domain
+#
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+
+# Argument definition
+domain=$1
+restart='yes'
+
+# Includes
+source $VESTA/func/main.sh
+source $VESTA/conf/vesta.conf
+
+# Additional argument formatting
+format_domain
+format_domain_idn
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+check_args '1' "$#" 'DOMAIN'
+
+web=$(grep -F -H "DOMAIN='$domain'" $VESTA/plugin/awsses/conf/clients.conf)
+if [ ! -z "$web" ]; then
+    check_result $E_EXISTS "Domain $1 exist"
+fi
+
+user=$($BIN/v-search-domain-owner $domain)
+if [ -z "$user" ]; then
+    check_result $E_EXISTS "User of domain $1 not found"
+fi
+
+# Concatenating string
+str="*@$domain"
+
+# Adding to config
+echo "$str" >> /etc/exim/ses-senders.conf
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Generating timestamp
+time_n_date=$(date +'%T %F')
+time=$(echo "$time_n_date" |cut -f 1 -d \ )
+date=$(echo "$time_n_date" |cut -f 2 -d \ )
+
+# Concatenating string
+str="DOMAIN='$domain' TIME='$time' DATE='$date'"
+
+# Adding to config
+echo "$str" >> $VESTA/plugin/awsses/conf/clients.conf
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+# Restarting mail server
+$BIN/v-restart-mail $restart
+check_result $? "Mail restart failed" >/dev/null
+
+# Logging
+log_history "Add aws ses domain"
+log_event "$OK" "$ARGUMENTS"
+
+exit

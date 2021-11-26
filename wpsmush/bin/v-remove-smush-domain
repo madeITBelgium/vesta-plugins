@@ -1,0 +1,61 @@
+#!/bin/bash
+# info: stop wp smush configuration
+#
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+
+# Argument definition
+domain=$1
+
+# Includes
+source $VESTA/func/main.sh
+source $VESTA/conf/vesta.conf
+
+# Additional argument formatting
+format_domain
+format_domain_idn
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+check_args '1' "$#" 'DOMAIN'
+
+web=$(grep -F -H "DOMAIN='$domain'" $VESTA/plugin/wpsmush/conf/clients.conf)
+if [ -z "$web" ]; then
+    check_result $E_NOTEXISTS "Domain $1 not exist"
+fi
+
+user=$($BIN/v-search-domain-owner $domain)
+if [ -z "$user" ]; then
+    check_result $E_EXISTS "User of domain $1 not found"
+fi
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+sed -i "/DOMAIN='$domain' /d" $VESTA/plugin/wpsmush/conf/clients.conf
+
+rm -rf /home/$user/conf/web/nginx.$domain.conf_before_wpsmush
+rm -rf /home/$user/conf/web/snginx.$domain.conf_before_wpsmush
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+# Restarting web server
+$BIN/v-restart-web $restart
+check_result $? "Web restart failed" >/dev/null
+
+# Restarting proxy server
+$BIN/v-restart-proxy $restart
+check_result $? "Proxy restart failed" >/dev/null
+
+
+# Logging
+log_history "Remove Smush configuration"
+log_event "$OK" "$ARGUMENTS"
+
+exit
+
