@@ -1,0 +1,103 @@
+#!/bin/bash
+# info: list ssh keys for a specific user
+# options: [FORMAT]
+#
+# The function to obtain the list of all keys for a specific user.
+
+
+#----------------------------------------------------------#
+#                    Variable&Function                     #
+#----------------------------------------------------------#
+
+# Argument definition
+user=$1
+format=${2-shell}
+
+# Includes
+source $VESTA/func/main.sh
+
+
+# JSON list function
+json_list() {
+    IFS=$'\n'
+    i=1
+    objects=$(cat /home/$user/.ssh/authorized_keys |wc -l)
+    echo "{"
+    while read str; do
+        echo -n '    "'$i'": {
+        "ID": "'$i'",
+        "KEY": "'$str'"
+    }'
+        if [ "$i" -lt "$objects" ]; then
+            echo ','
+        else
+            echo
+        fi
+        ((i++))
+    done < <(cat /home/$user/.ssh/authorized_keys)
+    echo '}'
+}
+
+# SHELL list function
+shell_list() {
+    IFS=$'\n'
+    echo "ID   KEY"
+    echo "--   ---"
+    i=1
+    while read str; do
+        echo "$i $str"
+        i=$i + 1
+    done < <(cat /home/$user/.ssh/authorized_keys)
+}
+
+# PLAIN list function
+plain_list() {
+    IFS=$'\n'
+    while read str; do
+        echo -ne "$str"
+    done < <(cat /home/$user/.ssh/authorized_keys)
+}
+
+# CSV list function
+csv_list() {
+    IFS=$'\n'
+    echo "ID,KEY"
+    i=1
+    while read str; do
+        echo "$i,$str"
+        ((i++))
+    done < <(cat /home/$user/.ssh/authorized_keys)
+}
+
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_args '1' "$#" 'USER [FORMAT]'
+is_format_valid 'user'
+is_object_valid 'user' 'USER' "$user"
+
+if [ ! -f "/home/$user/.ssh/authorized_keys" ]; then
+    check_result $E_NOTEXIST "$user has not authorized keys."
+fi
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Listing data
+case $format in
+    json)   json_list ;;
+    plain)  plain_list ;;
+    csv)    csv_list ;;
+    shell)  shell_list |column -t ;;
+esac
+
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+exit
+
