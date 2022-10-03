@@ -1,0 +1,46 @@
+#!/bin/bash
+# info: Add AWS SES domain
+#
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+
+# Argument definition
+user=$1
+key=${@:2}
+
+# Includes
+source $VESTA/func/main.sh
+source $VESTA/conf/vesta.conf
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_args '2' "$#" 'USER KEY [FORMAT]'
+is_format_valid 'user'
+is_object_valid 'user' 'USER' "$user"
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+mkdir -p /home/$user/.ssh
+chmod -r 600 /home/$user/.ssh
+chown -R $user:$user /home/$user/.ssh
+
+echo "$key" >> /home/$user/.ssh/authorized_keys
+chmod 600 /home/$user/.ssh/authorized_keys
+chown $user:$user /home/$user/.ssh/authorized_keys
+
+#----------------------------------------------------------#
+#                       Vesta                              #
+#----------------------------------------------------------#
+
+# Logging
+log_history "Add SSH authorized keys"
+log_event "$OK" "$ARGUMENTS"
+
+exit
