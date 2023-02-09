@@ -49,8 +49,8 @@ str="DOMAIN='$domain' TIME='$time' DATE='$date'"
 # Adding to config
 echo "$str" >> $VESTA/plugin/wprocket/conf/clients.conf
 
-ln -s $VESTA/plugin/wprocket/install/wprocket.conf /home/$user/conf/web/nginx.$domain.conf_before_wprocket
-ln -s $VESTA/plugin/wprocket/install/wprocket.conf /home/$user/conf/web/snginx.$domain.conf_before_wprocket
+ln -s $VESTA/plugin/wprocket/install/wprocket.conf /home/$user/conf/web/nginx.$domain.conf_wprocket
+ln -s $VESTA/plugin/wprocket/install/wprocket.conf /home/$user/conf/web/snginx.$domain.conf_wprocket
 
 $BIN/v-delete-cron-by-name $user "cd /home/$user/web/$domain/public_html; php wp-cron.php &>/dev/null"
 $BIN/v-add-cron-job $user '*/5' '*' '*' '*' '*' "cd /home/$user/web/$domain/public_html; php wp-cron.php &>/dev/null"

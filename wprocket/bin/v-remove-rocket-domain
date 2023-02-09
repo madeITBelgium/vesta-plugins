@@ -41,12 +41,6 @@ sed -i "/DOMAIN='$domain' /d" $VESTA/plugin/wprocket/conf/clients.conf
 rm -rf /home/$user/conf/web/nginx.$domain.conf_wprocket
 rm -rf /home/$user/conf/web/snginx.$domain.conf_wprocket
 
-rm -rf /home/$user/conf/web/nginx.$domain.conf_before_wprocket
-rm -rf /home/$user/conf/web/snginx.$domain.conf_before_wprocket
-
-rm -rf /home/$user/conf/web/nginx.$domain.conf_after_wprocket
-rm -rf /home/$user/conf/web/snginx.$domain.conf_after_wprocket
-
 $BIN/v-delete-cron-by-name $user "cd /home/$user/web/$domain/public_html; php wp-cron.php &>/dev/null"
 
 #----------------------------------------------------------#
